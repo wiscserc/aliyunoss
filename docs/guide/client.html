@@ -1,0 +1,171 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>OSSClient | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="ossclient">OSSClient</h1>
+<h2 id="_1">基本概念</h2>
+<p>OSSClient是OSS服务的用户接口，用户通过<a href="/reference/com/aliyun/android/oss/OSSClient.html">OSSClient</a>对象调用SDK中提供的各种API，并完成所有OSS服务的操作。</p>
+<p><a href="/reference/com/aliyun/android/oss/model/Task.html">Task</a>对象封装了OSS服务的各种原始的基本操作，其参数与返回值都涉及Http的各种字段。而OSSClient是对Task的进一步封装，在面向<a href="/reference/com/aliyun/android/oss/model/package-summary.html">Model</a>对象的层次上对用户提供OSS服务的API。</p>
+<h2 id="_2">访问控制</h2>
+<ul>
+<li>
+<p>需要以个人身份访问时，设置Access Id与Access Key即可。具体用法如下:</p>
+<pre><code>OSSClient client = new OSSClient();
+client.setAccessId("MY_ACCESS_ID");
+client.setAccessKey("MY_ACCESS_KEY");
+</code></pre>
+<ul>
+<li>需要匿名访问时，不设置Acess Key即可，但OSS服务绝大多数不支持匿名访问。</li>
+</ul>
+</li>
+</ul>
+<h2 id="bucket">Bucket操作</h2>
+<ul>
+<li>查看Bucket列表（<a href="/reference/com/aliyun/android/oss/OSSClient.html#getBucketList()">getBucketList</a>）</li>
+<li>创建Bucket（<a href="/reference/com/aliyun/android/oss/OSSClient.html#createBucket(java.lang.String)">createBucket</a>）</li>
+<li>删除Bucket（<a href="/reference/com/aliyun/android/oss/OSSClient.html#deleteBucket(java.lang.String)">deleteBucket</a>）</li>
+<li>更改Bucket可见性（<a href="/reference/com/aliyun/android/oss/OSSClient.html">changeBucketAcl</a>changebucketacl）</li>
+<li>获取Bucket可见性（<a href="/reference/com/aliyun/android/oss/OSSClient.html#getBucketAcl(java.lang.String)">getBucketAcl</a>）</li>
+</ul>
+<h2 id="_3">文件夹操作</h2>
+<ul>
+<li>
+<p>查看Bucket下所有文件和文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html#viewBucket(java.lang.String)">viewBucket</a>）:考虑到文件可能很多，因此返回一个分页器供用户使用，另外可以指定最大数量。具体用法如下：</p>
+<pre><code>//返回 MY_BUCKET_NAME 下所有文件及文件夹
+Pagination&lt;OSSObjectSummary&gt; all_pag = client.viewBucket("MY_BUCKET_NAME");
+
+//返回 MY_BUCKET_NAME 下文件及文件夹，最大数目为 MAX_NUMBER
+Pagination&lt;OSSObjectSummary&gt; sub_pag = client.viewBucket("MY_BUCKET_NAME",MAX_NUMBER);
+</code></pre>
+<ul>
+<li>创建文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html">createFolder</a>）</li>
+<li>查看文件夹下所有文件和文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html">viewFolder</a>）：返回分页器，用法同<a href="/reference/com/aliyun/android/oss/OSSClient.html#viewBucket(java.lang.String)">viewBucket</a>。</li>
+<li>删除文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html">deleteFolder</a>）：同时递归删除该文件夹下所有内容。</li>
+<li>删除文件夹中的内容（<a href="/reference/com/aliyun/android/oss/OSSClient.html">deleteSubContents</a>）：递归删除该文件夹下所有内容，但保留该文件夹。</li>
+<li>删除文件夹中的子文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html">deleteSubFolders</a>）：只删除该文件夹下的子文件夹，保留该文件夹下的文件。</li>
+<li>删除文件夹中的文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">deleteSubObjects</a>）：只删除该文件夹下的文件，保留该文件夹下的子文件夹。</li>
+<li>复制文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html">copyFolder</a>）：可以在 Bucket 之间复制文件夹。</li>
+<li>移动文件夹（<a href="/reference/com/aliyun/android/oss/OSSClient.html">moveFolder</a>）</li>
+</ul>
+</li>
+</ul>
+<h2 id="_4">文件操作</h2>
+<ul>
+<li>
+<p>上传文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">uploadObject</a>）：可以上传本地文件，也可以上传字节块。具体用法如下：</p>
+<pre><code>//上传本地文件
+client.uploadObject("MY_BUCKET_NAME","MY_OBJECT_NAME","LOCAL_PATH");
+
+//上传字节块
+byte[] data = DATA;
+client.uploadObject("MY_BUCKET_NAME","MY_OBJECT_NAME",data);
+</code></pre>
+</li>
+<li>
+<p>上传压缩文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">uploadZippedObject</a>）：同样可选本地文件和字节块。</p>
+</li>
+<li>上传加密文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">uploadEncObject</a>）：同样可选本地文件和字节块。</li>
+<li>上传压缩并加密的文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">uploadZipEncObject</a>）：同样可选本地文件和字节块。</li>
+<li>获取文件，返回完整的[OSSObject][ossobject]，包括其数据（<a href="/reference/com/aliyun/android/oss/OSSClient.html">getObject</a>）</li>
+<li>获取文件摘要信息, 仍返回[OSSObject][ossobject]，但不包含数据（<a href="/reference/com/aliyun/android/oss/OSSClient.html">getObjectSummary</a>）</li>
+<li>下载文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">downloadObject</a>）</li>
+<li>删除文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">deleteObject</a>）</li>
+<li>复制文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">copyObject</a>）：可以在 Bucket 之间复制文件。</li>
+<li>移动文件（<a href="/reference/com/aliyun/android/oss/OSSClient.html">moveObject</a>）</li>
+</ul>
+<h2 id="object-group">分组上传与Object Group</h2>
+<ul>
+<li>
+<p>创建分块上传任务（<a href="/reference/com/aliyun/android/oss/OSSClient.html">createMultipartUploadMission</a>）：可以指定每块的大小。具体用法如下：</p>
+<pre><code>//创建分组上传任务
+MultipartUploadMission mission = createMultipartUploadMission("MY_BUCKET_NAME","MY_OBJECT_NAME","LOCAL_PATH",PART_SIZE);
+//TODO: Operating this mission
+</code></pre>
+</li>
+<li>
+<p>查看bucket下所有已经初始化，但是还未complete或者abort的分块上传任务（<a href="/reference/com/aliyun/android/oss/OSSClient.html#listMultipartUploadMissions(java.lang.String)">listMultipartUploadMissions</a>）：返回 <code>ArrayList&lt;MultipartUploadMission&gt;。</code></p>
+</li>
+<li>
+<p>创建出一个新的Object Group（<a href="/reference/com/aliyun/android/oss/OSSClient.html">createObjectGroup</a>）：指定已经存在的若干Object形成一个Object Group，这些Object只能在一个Bucket中。具体用法如下：</p>
+<pre><code>//创建要合并的Object名称列表
+ArrayList&lt;String&gt; parts = new ArrayList&lt;String&gt;();
+parts.Add("OBJECT1");
+parts.Add("OBJECT2");
+//创建一个ObjectGroup
+createObjectGroup("MY_BUCKET_NAME","OBJECT_GROUP_NAME",parts);
+</code></pre>
+</li>
+<li>
+<p>下载Object Group（<a href="/reference/com/aliyun/android/oss/OSSClient.html">downloadObjectGroup</a>）</p>
+</li>
+<li>删除Object Group（<a href="/reference/com/aliyun/android/oss/OSSClient.html">deleteObjectGroup</a>）</li>
+<li>获取Object Group中的文件列表（<a href="/reference/com/aliyun/android/oss/OSSClient.html">getObjectGroupIndex</a>）</li>
+</ul>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

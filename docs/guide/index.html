@@ -1,0 +1,86 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>API使用指南概述 | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="api">API使用指南概述</h1>
+<p>欢迎使用阿里云开放存储服务Android SDK，这里首先对整个指南进行一个概述，方便各位开发者更好地使用SDK进行开发。</p>
+<h2 id="ossclient">OSSClient</h2>
+<p>面向开发者友好的OSS服务编程接口，它能够胜任简单而基本的任务，推荐初次使用SDK或者应用场景并不复杂的开发者使用。</p>
+<h2 id="task">Task</h2>
+<p>任务编程接口，每一个具体任务对应一种OSS HTTP REST API，对于需求比较复杂、定制性较高的开发者推荐基于Task进行开发</p>
+<h2 id="_1">基本组件</h2>
+<p>无论基于哪一种SDK的使用方式，都需要对SDK的基本组件元素有一定了解，这里对OSS中每一种概念都进行了介绍，并且描述了SDK中的对应元素，同时简单引入了一些示例代码</p>
+<h2 id="_2">访问控制</h2>
+<p>SDK已经对权限、验证、签名等等机制做了良好的封装，开发者不再需要关系具体实现细节了</p>
+<h2 id="_3">实用工具</h2>
+<p>对于一些复杂的API来说，可能Task对象处理起来还是比较复杂的，为了降低复杂性，SDK提供了分页工具抽象出分页逻辑，使得开发者能够很方便的处理分页。</p>
+<p>分块上传是OSS为一些场景例如断点续传、网络状况很差等等而设置的，SDK也对此进行了封装</p>
+<p>加密、压缩也是SDK提供的比较有用而方便的功能，用户通过压缩存储可以节约流量，通过加密存储可以提高安全性</p>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

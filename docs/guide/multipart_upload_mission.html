@@ -1,0 +1,162 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>分组上传指南 | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="_1">分组上传指南</h1>
+<h2 id="_2">概述</h2>
+<p>除了通过Put Object接口上传文件到OSS以外，我们还提供了一种上传模式——Multipart Upload。即将上传文件分为多个小块，分别上传每一个小块，当所有小块上传完成以后，整个文件上传完成，又OSS服务器负责组装这些块为一个整体文件。用户可以在如下场景（不限于此）内使用这种上传模式：</p>
+<ul>
+<li>断点续传</li>
+<li>上传大文件</li>
+<li>网络条件不稳定</li>
+<li>流式上传文件</li>
+<li>上传文件之前，文件大小无法确定</li>
+</ul>
+<h2 id="_3">初始化分组上传任务</h2>
+<p>使用Multipart Upload模式传输数据前，必须先调用该初始化接口来通知OSS初始化一个Multipart Upload事件。OSS会返回一个服务器创建的全局唯一的Upload ID，用于标识本次上传事件。以后每次上传一个小块，都需要附上这个id作为参数。同时用户可以用该id来进行停止、完成、查询相关操作。</p>
+<p>初始化操作封装在<a href="/reference/com/aliyun/android/oss/task/MultipartUploadInitTask.html">MultipartUploadInitTask</a>中。示例代码如下：</p>
+<pre><code>MultipartUploadInitTask initTask = new MultipartUploadInitTask(
+        bucketName, targetObjectKey);
+initTask.initKey(accessId, accessKey);
+String uploadId = initTask.getResult();
+</code></pre>
+<p>任务如果执行成功，返回uploadId；否则抛出异常</p>
+<h2 id="_4">上传分块</h2>
+<p>在初始化一个Multipart Upload事件时候，可以根据指定的Object名(目标Object名)和UploadId来分块(Part)分块上传数据。对于同一个UploadId，每一个<a href="/reference/com/aliyun/android/oss/model/Part.html">Part</a>的唯一标识号码—— <code>partNumber</code> 还标识了这块数据在整个文件内的相对位置。除了最后一块Part以外，其他的part最小为5MB；最后一块没有限制。</p>
+<p>在分块上传数据时需要注意：</p>
+<ul>
+<li>分块上传完成后，服务端将接受到数据的ETag值返回给用户，强烈建议用户对这个值进行校验</li>
+<li><code>partNumber</code>的范围是1-10000，如果超出这个范围，执行任务后会抛出异常：InvalidArgument</li>
+</ul>
+<p>示例代码如下：</p>
+<pre><code>Part part = new Part();
+//initialize Part object
+UploadPartTask uploadTask = new UploadPartTask(bucketName,
+        targetObjectKey, uploadId, part);
+uploadTask.initKey(accessId, accessKey);
+String eTag = uploadTask.getResult();
+</code></pre>
+<p>任务执行完成后，返回上传Part的ETag值以便用户进行校验</p>
+<h2 id="_5">完成上传</h2>
+<p>在所有数据都上传完成后，必须调用<a href="/reference/com/aliyun/android/oss/task/MultipartUploadCompleteTask.html">CompleteMultipartUploadTask</a>来完成整个文件的上传。在执行该任务时，必须提供所有有效数据Part的列表（包括 <code>partNumber</code> 和 <code>ETag</code> )。服务器在验证Part数据有效性后，才将这些Part组合成一个完整的Object。示例代码如下：</p>
+<pre><code>List&lt;Part&gt; parts;//need to initialize
+MultipartUploadCompleteTask task = new MultipartUploadCompleteTask(
+        bucketName, targetObjectKey, uploadId, parts);
+task.initKey(accessId, accessKey);
+OSSObject obj = task.getResult();
+</code></pre>
+<p>任务执行完毕后返回一个<a href="/reference/com/aliyun/android/oss/model/OSSObject.html">OSSObject</a>对象，里面包含了Object的bucket, key, eTag信息。</p>
+<h2 id="_6">中止上传</h2>
+<p>中止用户提供的uploadId对应的Multipart Upload任务。任务终止后，uploadId失效，已经上传的Part数据也会被删除。示例代码如下：</p>
+<pre><code>MultipartUploadAbortTask task = new MultipartUploadAbortTask(
+        bucketName, targetObjectKey, uploadId);
+task.initKey(accessId, accessKey);
+boolean result = task.getResult();
+</code></pre>
+<p>中止成功则返回 <code>true</code> ，否则抛出异常</p>
+<h2 id="multipart-upload">获取正在执行的Multipart Upload列表</h2>
+<p>用户可以查询某个Bucket下面所有正在执行分组上传的任务列表。用户通过List Multipart Uploads来实现这个功能。示例代码如下：</p>
+<pre><code>ListMultipartUploadsTask listTask = new ListMultipartUploadsTask(bucketName);
+listTask.initKey(accessId, accessKey);
+ListMultipartUploadsXmlObject obj = listTask.getResult();
+</code></pre>
+<h2 id="_7">获取分块列表</h2>
+<p>根据指定的Upload ID列出对应任务所有已经上传成功的Part。由于Part数量可能很多，服务器对返回结果的数量进行了限制——最大1000个Part。所以需要通过max-parts和part-number-marker两个参数来进行分页请求，具体细节见<a href="/reference/com/aliyun/android/oss/task/ListPartsTask.html">ListPartsTask</a>。示例代码如下：</p>
+<pre><code>ListPartsTask task = new ListPartsTask(bucketName, key, uploadId);
+task.initKey(accessId, accessKey);
+task.setMaxParts(maxKeys);
+task.setPartNumberMarker(partNumberMarker);
+ListPartXmlObject obj = task.getResult();
+</code></pre>
+<p>返回结果封装在<a href="/reference/com/aliyun/android/oss/model/ListPartXmlObject.html">ListPartXmlObject</a>中</p>
+<p>对于分页逻辑，我们推荐使用<a href="/reference/com/aliyun/android/util/Pagination.html">Pagination</a>对象。具体使用方法参见<a href="pagination.html">Pagination使用</a></p>
+<h2 id="multipartuploadmission">MultipartUploadMission</h2>
+<p>对于分组上传文件，除了自行使用上面介绍的五种task去构造Http请求外，还可以使用<a href="/reference/com/aliyun/android/util/MultipartUploadMission.html">MultipartUploadMission</a>。MultipartUploadMission对象由OSSClient去生成，在里面记录了文件块大小，目标命名空间，Object名称和文件路径等信息。它负责一个文件分组上传任务。包含如下方法：</p>
+<ul>
+<li>init(): 初始化一个文件分组上传任务</li>
+<li>uploadFile(): 分块上传一个文件</li>
+<li>uploadPart(Part p): 上传一个数据块</li>
+<li>abort(): 终止此次上传任务</li>
+<li>complete(): 完成上传任务，当传完所有文件块后需要调用这个函数，才会在服务器上最终建立文件。</li>
+<li>quickUpload(): 完成初始化、上传和complete的工作</li>
+<li>listSuccessParts(Integer maxParts): 返回已经上传成功的文件块信息</li>
+</ul>
+<p>使用quickUpload上传文件的示例代码如下：</p>
+<pre><code>MultipartUploadMission mission = new MultipartUploadMission(
+    TaskTest.ACCESS_ID, TaskTest.ACCESS_KEY, bucketName, "midfile",
+    FILENAME, 6 * 1024 * 1024);
+OSSObject obj = mission.quickUpload();
+</code></pre>
+<p>也可以去调用其它API去完成文件的上传，示例代码如下：</p>
+<pre><code>mission.init();
+mission.uploadFile();
+mission.complete();
+</code></pre>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

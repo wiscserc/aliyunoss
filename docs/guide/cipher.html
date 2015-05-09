@@ -1,0 +1,103 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>文件加密指南 | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="_1">文件加密指南</h1>
+<h2 id="_2">概述</h2>
+<p>如果有对上传文件进行加密的需要，SDK里支持了DES, AES, DESede和IDEA四种对称加密算法。可以由<a href="/reference/com/aliyun/android/util/CipherUtil.html">CipherUtil</a>去生成密钥，使用密钥对文件进行加密，被加密的文件会自动添加"x-oss-meta-encrypt:algorithm"的标识，指明使用的加密算法。获取文件时根据这个标识进行相应的解密。</p>
+<h2 id="_3">加密文件</h2>
+<p>上传加密文件使用<a href="/reference/com/aliyun/android/oss/task/PutZipEncObjectTask.html">PutZipEncObjectTask</a>，其用法和<a href="/reference/com/aliyun/android/oss/task/PutObjectTask.html">PutObjectTask</a>类似，实质上前者也是从后者继承来的。<a href="/reference/com/aliyun/android/oss/task/PutZipEncObjectTask.html">PutZipEncObjectTask</a>处理上传压缩或者加密文件的功能，示例代码如下：</p>
+<pre><code>byte[] key = CipherUtil.generateKey(CipherAlgorithm.AES)
+                .getEncoded();
+// 创建实例时将倒数第三个参数isZipped设置为false
+PutZipEncObjectTask tsk = new PutZipEncObjectTask(bucketName, objectKey, 
+                 "plain/text", data, false, true, key);
+tsk.setCipherAlgorithm(CipherAlgorithm.AES);   //默认的加密方法是DES
+tsk.initKey(accessId, accessKey);
+String etag = tsk.getResult();
+</code></pre>
+<h2 id="_4">解密文件</h2>
+<p>解密文件使用<a href="/reference/com/aliyun/android/oss/task/GetObjectTask.html">GetObjectTask</a>, 与下载普通文件没有区别，会自动进行解密。示例代码如下：</p>
+<pre><code>GetObjectTask tsk = new GetObjectTask(bucketName, objectKey);
+tsk.initKey(accessId, accessKey);
+tsk.setDecryptKey(key);     
+OSSObject obj = tsk.getResult();    //自动使用对应的解密方法进行解密
+</code></pre>
+<h2 id="_5">压缩加密</h2>
+<p>一个文件同样可以先压缩然后进行加密，获取文件的时候相应的先解密然后解压缩，同样使用<a href="/reference/com/aliyun/android/oss/task/PutZipEncObjectTask.html">PutZipEncObjectTask</a>。</p>
+<h2 id="ossclient">OSSClient</h2>
+<p><a href="/reference/com/aliyun/android/oss/OSSClient.html">OSSClient</a>封装了上传加密文件和下载加密文件的API，示例代码如下：</p>
+<pre><code>byte[] key = CipherUtil.generateKey(CipherAlgorithm.DES)
+                .getEncoded();
+String etag = client.uploadZipEncObject(bucketName, objectKey,
+                data, key);
+OSSObject obj = client.getObject(bucketName, objectKey, key);
+</code></pre>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

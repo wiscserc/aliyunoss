@@ -1,0 +1,97 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>Object Group | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="object-group">Object Group</h1>
+<h2 id="_1">基本概念</h2>
+<p>Object Group是由一个或多个Object组成的松散的集合。用户可以像操作普通Object一样去操作Object Group。</p>
+<h2 id="sdkobject-group">SDK中的Object Group对象</h2>
+<p>在SDK中我们将Object Group概念封装为<a href="/reference/com/aliyun/android/oss/model/ObjectGroup.html">ObjectGroup</a>对象。与<a href="/reference/com/aliyun/android/oss/model/OSSObject.html">OSSObject</a>一样，它也具有bucketName，key，meta等属性，同时ObjectGroup对象还包含了一个Object列表，这里由于不需要<a href="/reference/com/aliyun/android/oss/model/OSSObject.html">OSSObject</a>对象的全部信息，我们将列表中的每一个Object封装为<a href="/reference/com/aliyun/android/oss/model/Part.html">Part</a>对象。</p>
+<h2 id="object-group_1">Object Group相关操作</h2>
+<p>Object Group的操作包括创建、获取、获取索引、获取元信息、删除</p>
+<h3 id="post-object-group">创建(Post Object Group)</h3>
+<p>Post Object Group操作将根据用户提供的Object信息，在OSS服务端创建一个新的Object Group。用户需要将group中所有object表示为<a href="/reference/com/aliyun/android/oss/model/Part.html">Part</a>对象。具体用法如下：</p>
+<pre><code>List&lt;Part&gt; parts = new ArrayList&lt;Part&gt;();
+//append objects to parts.
+ObjectGroup objectGroup = new ObjectGroup(key, bucketName, parts);
+PostObjectGroupTask task = new PostObjectGroupTask(objectGroup);
+OSSObjectSummary result = task.execute();
+</code></pre>
+<p>需要注意，Part列表中的元素的partId值(uint32格式)必须按升序排列，列表长度不能超过1000。具体细节参见<a href="/reference/com/aliyun/android/oss/task/PostObjectGroupTask.html">PostObjectGroupTask</a>。</p>
+<h3 id="get-object-group">获取（Get Object Group)</h3>
+<p>在Get操作上，Object Group和Object是一致的，使用方法和参数参见Object说明。参考文档<a href="/reference/com/aliyun/android/oss/task/GetObjectTask.html">GetObjectTask</a></p>
+<p>需要注意的是，一个Object Group创建成功后，所属的某些Object可能被修改。在读取Object Group时，OSS会检查所有Object的ETag属性是否发生变化，如果发生了变化则返回错误。</p>
+<h3 id="get-object-group-index">获取索引(Get Object Group Index)</h3>
+<p>操作封装在<a href="/reference/com/aliyun/android/oss/task/GetObjectGroupIndexTask.html">GetObjectGroupIndexTask</a>[getobjectgroupindex]中，返回Object Group中的Object List信息。基本与Get操作用法相同，不同在于返回值是一个<a href="/reference/com/aliyun/android/oss/model/ObjectGroup.html">ObjectGroup</a>对象。</p>
+<h3 id="head-object-group">获取元信息(Head Object Group)</h3>
+<p>操作封装在<a href="/reference/com/aliyun/android/oss/task/HeadObjectGroupTask.html">HeadObjectGroupTask</a>中，与<a href="/reference/com/aliyun/android/oss/task/HeadObjectTask.html">HeadObjectTask</a>相同。</p>
+<h3 id="delete-object-group">删除(Delete Object Group)</h3>
+<p>操作封装在<a href="/reference/com/aliyun/android/oss/task/DeleteObjectGroupTask.html">DeleteObjectGroupTask</a>中，与<a href="/reference/com/aliyun/android/oss/task/DeleteObjectTask.html">DeleteObjectTask</a>相同。</p>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

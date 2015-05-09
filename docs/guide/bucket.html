@@ -1,0 +1,135 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>Bucket | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="bucket">Bucket</h1>
+<h2 id="_1">基本概念</h2>
+<p>Bucket是OSS服务上的命名空间；Bucket名在整个OSS中具有全局唯一性，且不能修改；存储在OSS上的每一个Object必须都包含在某个Bucket中。一个用户最多可以创建10个Bucket，每个Bucket钟存放的Object没有数量和大小的限制。Bucket命名规范如下：</p>
+<ul>
+<li>只能包含小写字母、数字、下划线(_)和短横线(-)</li>
+<li>必须以小写字母或者数字开头</li>
+<li>长度必须在3-255字节之间</li>
+</ul>
+<h2 id="sdkbucket">SDK中的Bucket对象</h2>
+<p>在SDK中我们将Bucket概念封装到了<a href="/reference/com/aliyun/android/oss/model/Bucket.html">Bucket</a>对象中。包含Bucket的基本信息：名称、创建时间、所属用户等。</p>
+<h2 id="bucket_1">Bucket的相关操作</h2>
+<p>Bucket的操作包括：创建Bucket、设置Bucket权限、获取Bucket中的对象列表、获取Bucket权限、删除Bucket</p>
+<h3 id="put-bucket">创建(Put Bucket)</h3>
+<p>操作封装在<a href="/reference/com/aliyun/android/oss/task/PutBucketTask.html">PutBucketTask</a>中。具体用法如下：</p>
+<pre><code>task = new PutBucketTask(getRandomString());
+task.initKey(accessKeyId, accessKeySecret);
+boolean result = task.getResult();
+</code></pre>
+<p>如果创建成功，task结果返回true，否则抛出异常。另外再提几个OSS_API文档中的细节：</p>
+<ul>
+<li>如果请求的Bucket已经存在，并且请求者拥有该Bucket，同样返回成功</li>
+<li>如果请求的Bucket已经存在，并且请求者不是该Bucket的拥有者，抛出异常：BucketAlreadyExists</li>
+<li>如果Bucket命名不符合规范，抛出异常：InvalidBucketName</li>
+<li>如果用户拥有的Bucket数目超过了最大值——10，抛出异常：TooManyBuckets</li>
+<li>创建的Bucket如果没有指定访问权限，默认为private</li>
+</ul>
+<p><a name="put_acl"></a></p>
+<h3 id="put-bucket-acl">设置权限(Put Bucket Acl)</h3>
+<p>Bucket包括三种权限：public-read-write, public-read和private。权限概念封装在<a href="/reference/com/aliyun/android/oss/model/AccessLevel.html">AccessLevel</a>中。设置权限的操作封装在<a href="/reference/com/aliyun/android/oss/task/PutBucketAclTask.html">PutBucketAclTask</a>中，具体实现如下(以设置Private权限为例)：</p>
+<pre><code>PutBucketAclTask task = new PutBucketAclTask(BUCKET, AccessLevel.PRIVATE);
+task.initKey(accessKeyId, accessKeySecret);
+boolean result = task.getResult();
+</code></pre>
+<p>如果权限设置成功，返回true；否则抛出异常。</p>
+<h3 id="get-bucket">获取对象列表(Get Bucket)</h3>
+<p>列出指定Bucket中所有的Object信息。操作封装在<a href="/reference/com/aliyun/android/oss/task/GetBucketTask.html">GetBucketTask</a>中。对于结果可以用一些字段进行限定：</p>
+<ul>
+<li>prefix 返回的object key必须以prefix作为前缀</li>
+<li>max-keys 限定此次返回object的最大数，取值不能超过1000。如果不设定，默认为1000</li>
+<li>marker 设定结果从marker之后按字母排序的第一个开始返回。用于处理分页逻辑</li>
+<li>delimiter 是一个用于对结果名字进行分组的限定符。所有名字包含指定的前缀且第一次出现dlimiter字符之间的object作为一组元素。用来实现文件夹逻辑</li>
+</ul>
+<p>对于返回结果，我们将其封装在了<a href="/reference/com/aliyun/android/oss/model/GetBucketXmlObject.html">GetBucketXmlObject</a>中。如果一次返回结果无法列完所有object，那么结果的nextMarker属性可以作为下一次请求的marker。</p>
+<p>由于存在需要分页的情况，我们将分页逻辑封装在了<a href="/reference/com/aliyun/android/util/Pagination.html">Pagination</a>对象中，以下是一个简单的例子，生成了指定bucket的第一页对象：</p>
+<pre><code>ObjectsQuery query = new ObjectsQuery(ACCESS_ID, ACCESS_KEY, bucketName, "");
+query.setMaxKeys(20);
+Pagination&lt;OSSObjectSummary&gt; p = query.paginate();
+
+while (p.hasNext()) {//遍历所有页面
+    p = p.next();
+}
+</code></pre>
+<p>我们强烈推荐使用这种方式来获取bucket中的所有对象。更多细节请见<a href="pagination.html">Pagination详细说明</a>。</p>
+<p><a name="get_acl"></a></p>
+<h3 id="get-bucket-acl">获取权限(Get Bucket Acl)</h3>
+<p>操作封装在<a href="/reference/com/aliyun/android/oss/task/GetBucketAclTask.html">GetBucketAclTask</a>中。返回指定Bucket的权限<a href="/reference/com/aliyun/android/oss/model/AccessLevel.html">AccessLevel</a></p>
+<h3 id="delete-bucket">删除(Delete Bucket)</h3>
+<p>删除指定的Bucket。操作封装在<a href="/reference/com/aliyun/android/oss/task/DeleteBucketTask.html">DeleteBucketTask</a>中。需要注意：</p>
+<ul>
+<li>如果bucket不存在，抛出异常：NoSuchBucket</li>
+<li>如果bucket不为空，抛出异常：BucketNotEmpty</li>
+<li>只有Bucket的拥有者才能删除Bucket</li>
+</ul>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

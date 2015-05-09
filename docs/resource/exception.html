@@ -1,0 +1,69 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>异常设计 | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="resource">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="api">API技术文档</h1>
+<ul>
+<li><a href="task.html">Task API设计</a></li>
+<li><a href="pagination.html">分页(Pagination)对象设计</a></li>
+<li><a href="exception.html">异常处理设计</a></li>
+<li><a href="zip_cipher.html">加密、压缩设计</a></li>
+</ul>
+<h1 id="api_1"><a href="../reference/index.html">API参考文档</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="_1">异常设计</h1>
+<p>根据OSS API文档中对错误响应的描述，我们将服务器返回的错误信息封装到<a href="/reference/com/aliyun/android/oss/OSSException.html">OSSException</a>对象中。</p>
+<p>所有的错误消息体都包括一下几个元素：</p>
+<ul>
+<li>Code: OSS返回给用户的错误码（附表中有错误码详细信息）</li>
+<li>Message: OSS给出的详细错误信息</li>
+<li>RequestID: 用于唯一标识该次请求的UUID；当你无法解决问题时，可以凭这个RequestId来请求OSS工程师的帮助</li>
+<li>HostId: 用于标识访问的OSS集群（目前统一为oss.aliyun.com)</li>
+</ul>
+<p>对于OSS服务器返回的错误信息，我们通过设置这些域的值来抛出异常。为了统一处理方便，我们对于其他真正的系统异常(Exception)，我们同样也作为OSSException抛出，但是为了区分，对于这类异常我们将其Code字段设置为常量 <code>OSSException.NON_OSS_ERROR</code>。</p>
+<p>在使用我们提供的Task, OSSClient的过程中，需要统一catch OSSException，所以的错误信息都封装到这个异常中，而不再需要捕获其他异常了。</p>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

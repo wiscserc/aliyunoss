@@ -1,0 +1,110 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>分页对象的深入使用 | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="_1">分页对象的深入使用</h1>
+<h2 id="_2">简介</h2>
+<p>由于对象数量可能过大，OSS中的某些查询api(返回结果是对象列表）不能够一次性列尽所有对象，这时就需要进行分页访问操作。由于OSS提供的API都是基于HTTP协议的，每访问一个页面都需要发送一次HTTP请求。即使在我们的SDK对这些HTTP细节进行封装后，还是需要多次显示调用任务执行逻辑，这就还是显得有些繁琐。为此我们基于Task封装了<a href="/reference/com/aliyun/android/util/Pagination.html">Pagination</a>对象，方便开发者简单的处理分页逻辑。</p>
+<h2 id="_3">使用方法</h2>
+<p>在OSS API的描述文档中，有三处需要使用分页：</p>
+<ul>
+<li>列出某Bucket中所有的对象</li>
+<li>列出当前正在上传的分组任务</li>
+<li>列出某个分组任务的所有分组信息</li>
+</ul>
+<p>每一个分页逻辑都包含两个部分</p>
+<ul>
+<li>
+<p>Pagination对象</p>
+<p>Pagination对象表示某次查询中的一页结果，包含了一个结果对象的列表。通过 <code>hasNext()</code> 和 <code>hasPrevious()</code> 方法可以判断是否存在前后页面。通过 <code>next()</code> 和 <code>previous()</code> 方法可以获取下/上一页的Pagination对象。</p>
+<p>由于这部分逻辑与查询结果具体是哪些对象，执行了什么任务是独立的，所以单独抽取出来以便复用。</p>
+</li>
+<li>
+<p>Query对象</p>
+<p>Query对象负责获取查询结果，无论结果是从OSS API还是本地数据库或其他地方得到。Query对象都只是表示对获取数据方法的封装。例如获取Bucket中的所有对象用到的Query对象是<a href="/reference/com/aliyun/android/oss/model/query/ObjectsQuery.html">ObjectsQuery</a>。而上文提到的另外两项任务用到的Query对象则分别是<a href="/reference/com/aliyun/android/oss/model/query/ListMultipartsQuery.html">ListMultipartsQuery</a>和<a href="/reference/com/aliyun/android/oss/model/query/ListPartsQuery.html">ListPartsQuery</a>。他们都实现了共同的抽象基类<a href="/reference/com/aliyun/android/oss/model/query/OSSQuery.html">OSSQuery</a>。在Query对象内部，实际上就是调用了相应的Task逻辑来完成对OSS的请求。</p>
+</li>
+</ul>
+<p>在实际的使用过程中，直接建立Query对象即可，不再需要建立Task对象了。以获取Bucket中Object列表为例：</p>
+<pre><code>ObjectsQuery query = new ObjectsQuery(ACCESS_ID, ACCESS_KEY, bucketName, "");
+query.setMaxKeys(20);
+Pagination&lt;OSSObjectSummary&gt; p = query.paginate();
+
+while (p.hasNext()) {//向前遍历所有页面
+    p = p.next();
+}
+
+while (p.hasPrevious()) {
+    P = p.previous();
+}
+</code></pre>
+<p>如果需要回到首页，直接调用 <code>query.paginate();</code> 即可</p>
+<h2 id="_4">进一步深入</h2>
+<p>本文只是描述了<a href="/reference/com/aliyun/android/util/Pagination.html">Pagination</a>对象的使用方法，如果需要进一步深入，例如需要扩展某些查询api的分页逻辑，请阅读<a href="../resource/pagination.html">Pagination对象设计细节</a></p>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

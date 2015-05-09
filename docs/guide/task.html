@@ -1,0 +1,96 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <title>Task概述 | Aliyun OSS Android SDK</title>
+
+  <link href="/assets/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/assets/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript" src="/assets/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="/assets/init.js"></script>
+  <link href="/assets/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><a name="top"/>
+
+<div id="header">
+  <div id="headerLeft">
+    <a href="/" tabindex="-1"><img src="/images/logo.jpg" alt="Aliyun OSS Android SDK" /></a>
+    <ul class="guide">
+      <li id="home-link"><a href="/index.html"><span>概览</span></a></li>   
+      <li id="guide-link"><a href="/guide/index.html"><span>API Guide</span></a></li>
+      <li id="resource-link"><a href="/resource/index.html"><span>技术资源</span></a></li>
+      <li id="about-link"><a href="/about/index.html"><span>关于我们</span></a></li>
+    </ul> 
+  </div>
+</div>
+
+<div id=sidebar>
+  <h1 id="ossclient"><a href="client.html">客户端工具(OSSClient)</a></h1>
+<h1 id="task"><a href="task.html">Task概述</a></h1>
+<h1 id="_1">基本组件</h1>
+<ul>
+<li><a href="object.html">Object</a></li>
+<li><a href="object_group.html">Object Group</a></li>
+<li><a href="bucket.html">Bucket</a></li>
+<li><a href="service.html">Service</a></li>
+</ul>
+<h1 id="_2">访问控制</h1>
+<ul>
+<li><a href="access.html">Access ID, Access Key</a></li>
+<li><a href="authority.html">权限控制</a></li>
+</ul>
+<h1 id="_3">实用工具</h1>
+<ul>
+<li><a href="pagination.html">分页</a></li>
+<li><a href="multipart_upload_mission.html">分块上传</a></li>
+<li><a href="cipher.html">加密</a></li>
+<li><a href="zip.html">压缩</a></li>
+</ul>
+<h1 id="_4"><a href="exception.html">错误响应</a></h1>
+</div>
+
+<div id=main>
+  <h1 id="task">Task概述</h1>
+<p>一般来说一个Task对应了一个OSS API，比如Delete Object的功能对应到的就是DeleteObjectTask。每个Task里构造了一个Http请求，并发起这个请求，获得来自服务器的HttpResponse。</p>
+<p>所有各式各样的task均继承自抽象基类Task。Task定义了一些基本方法，其子类一般只是对这些方法有些小的改动或者增添，这些基本方法如下：</p>
+<ol>
+<li>initKey：设置accessKey和accessId</li>
+<li>checkArguments：检查参数的合法性，如果参数不正确，则抛出IllegalArgumentException，每次执行前都进行一遍检查</li>
+<li>execute：构造并发起http请求，返回HttpResponse</li>
+<li>generateHttpRequest：构造http请求</li>
+<li>getResponseError：获取阿里云服务器返回的错误信息</li>
+<li>releaseHttpClient：释放httpClient，每次执行后都需要释放，否则系统资源将很快被用光。</li>
+</ol>
+<p>此外大部分Task的子类还实现了getResult方法，用于返回每个task执行后的结果，比如bool值用来判断操作是否成功，或者是返回由xml解析出来的模型。一般task的运作流程如下图所示：</p>
+<p><img alt="Task运作流程" src="../images/task_process.png" /></p>
+<p>事实上，对于我们的SDK，有两种使用方式：</p>
+<ul>
+<li>使用<a href="client.html">OSSClient</a>。OSSClient中封装了很多简单常用的功能，基本能够满足简单直观的需求。</li>
+<li>使用Task。对于某些特殊需求OSSClient可能并不能够完全满足。而Task是对OSS API的直接封装，包括了API中所有提供的特性，如果需要深度定制，推荐使用Task对象。</li>
+</ul>
+<p>在使用Task时，有必要进行几点说明：</p>
+<ul>
+<li>在初始化Task后，必须调用initKey方法对accessKeyID和accessKeySerect进行设置，否则无法正常访问OSS</li>
+<li>调用getResult()方法后，无论是正常获取结果还是抛出异常，Http资源将会全部被释放，如果需要再次访问，需要重新实例化Task对象</li>
+<li>一般来说只需要调用initKey和getResult方法即可，不需要调用其他抽象方法例如checkArguments, execute等。但是有可能存在某些Task类包含一些公共方法来提供某些请求选项</li>
+</ul>
+</div>
+
+<div id="footer"> 
+  <div id="copyright">
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. 
+  </div>
+ 
+  <div id="footerLeft">
+  </div>
+  <div id="footerRight">
+    <p>
+      <a href="#top">回页首</a>
+    </p>
+  </div>
+</div> 
+
+</body>
+</html>

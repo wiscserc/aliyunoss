@@ -1,0 +1,9 @@
+com.aliyun.android.oss
+com.aliyun.android.oss.http
+com.aliyun.android.oss.model
+com.aliyun.android.oss.model.query
+com.aliyun.android.oss.task
+com.aliyun.android.oss.xmlparser
+com.aliyun.android.oss.xmlserializer
+com.aliyun.android.util
+com.aliyun.librarytest
