@@ -1,4 +1,4 @@
-# Aliyun OSS SDK for Android 说明 #
+# Aliyun OSS SDK for Android
 
 本目录一共包含3个文件夹：
 
