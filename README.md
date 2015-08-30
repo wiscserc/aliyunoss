@@ -1,5 +1,7 @@
 # Aliyun OSS SDK for Android
 
+这是Ali OSS的非官方SDK，官方版现已发布：https://docs.aliyun.com/?spm=5176.775974650.2.5.T18q0S#/pub/oss/sdk/sdk-download&android
+
 本目录一共包含3个文件夹：
 
 * bin 二进制文件，包括sdk jar包以及一个简单的http server用来查看sdk文档（需要python运行环境）
